@@ -25,15 +25,40 @@ class MoneyManager extends Component {
     optionId: transactionTypeOptions[0].optionId,
   };
 
+  componentDidMount() {
+    this.getLocallyStoredData();
+  }
+
+  getLocallyStoredData = () => {
+    const storedData = JSON.parse(localStorage.getItem("moneyDetails"));
+    if (storedData) {
+      const { transactionsList } = storedData;
+      this.setState({
+        transactionsList,
+      });
+    }
+  };
+
+  storeLocally = () => {
+    const { transactionsList } = this.state;
+    const dataToStore = JSON.stringify({
+      transactionsList,
+    });
+    localStorage.setItem("moneyDetails", dataToStore);
+  };
+
   deleteTransaction = (id) => {
     const { transactionsList } = this.state;
     const updatedTransactionList = transactionsList.filter(
       (eachTransaction) => id !== eachTransaction.id
     );
 
-    this.setState({
-      transactionsList: updatedTransactionList,
-    });
+    this.setState(
+      () => ({
+        transactionsList: updatedTransactionList,
+      }),
+      this.storeLocally
+    );
   };
 
   onAddTransaction = (event) => {
@@ -50,12 +75,20 @@ class MoneyManager extends Component {
       type: displayText,
     };
 
-    this.setState((prevState) => ({
-      transactionsList: [...prevState.transactionsList, newTransaction],
-      titleInput: "",
-      amountInput: "",
-      optionId: transactionTypeOptions[0].optionId,
-    }));
+    this.setState(
+      (prevState) => ({
+        transactionsList: [...prevState.transactionsList, newTransaction],
+        titleInput: "",
+        amountInput: "",
+        optionId: transactionTypeOptions[0].optionId,
+      }),
+      this.storeLocally
+    );
+  };
+
+  clearHistory = () => {
+    this.setState({ transactionsList: [] });
+    localStorage.removeItem("moneyDetails");
   };
 
   onChangeOptionId = (event) => {
@@ -153,7 +186,7 @@ class MoneyManager extends Component {
                 AMOUNT
               </label>
               <input
-                type="text"
+                type="number"
                 id="amount"
                 className="input"
                 value={amountInput}
@@ -180,7 +213,16 @@ class MoneyManager extends Component {
               </button>
             </form>
             <div className="history-transactions">
-              <h1 className="transaction-header">History</h1>
+              <div className="header-btn-container">
+                <h1 className="transaction-header">History</h1>
+                <button
+                  type="button"
+                  className="clear-history-btn button"
+                  onClick={this.clearHistory}
+                >
+                  Clear History
+                </button>
+              </div>
               <div className="transactions-table-container">
                 <ul className="transactions-table">
                   <li className="table-header">
