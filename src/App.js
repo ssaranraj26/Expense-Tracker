@@ -1,12 +1,5 @@
-import logo from "./logo.svg";
-import "./App.css";
+import MoneyManager from "./components/MoneyManager";
 
-function App() {
-  return (
-    <div className="App">
-      <h1>saran</h1>
-    </div>
-  );
-}
+const App = () => <MoneyManager />;
 
 export default App;
